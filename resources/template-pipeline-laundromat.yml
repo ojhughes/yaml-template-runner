@@ -1,0 +1,5 @@
+{{define "pipelineTemplate"}}
+jobs:
+{{template "removeTile1_12" .removeTile1_12}}
+{{template "removeTile2_0" .removeTile2_0}}
+{{end}}

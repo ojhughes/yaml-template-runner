@@ -1,0 +1,8 @@
+blocks:
+  - name: removeTile1_12
+    vars:
+      pcfVersion: 1-12
+
+  - name: removeTile2_0
+    vars:
+      pcfVersion: 2-0

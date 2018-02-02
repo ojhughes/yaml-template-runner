@@ -1,0 +1,49 @@
+- name: remove-tile-{{index . "pcfVersion"}}
+  max_in_flight: 6
+  plan:
+  - aggregate:
+    - get: ci
+    - get: scs-laundromat
+    - get: task-image
+    - get: dirty-repo-no-tile-{{index . "pcfVersion"}}
+      trigger: true
+    - get: dirty-pool-no-tile-{{index . "pcfVersion"}}
+    - get: clean-pool-no-tile-{{index . "pcfVersion"}}
+    - get: broken-pool-no-tile-{{index . "pcfVersion"}}
+  - put: dirty-pool-no-tile-{{index . "pcfVersion"}}
+    params:
+      acquire: true
+      
+  - task: uninstall-tile-{{index . "pcfVersion"}}
+    image: task-image
+    timeout: 1h
+    attempts: 3
+    input_mapping:
+      dirty-pool: dirty-pool-no-tile-{{index . "pcfVersion"}}
+      dirty-repo: dirty-repo-no-tile-{{index . "pcfVersion"}}
+    file: ci/tasks/laundromat/cleanup-environment-task.yml
+    params:
+      REL_LOCK_PATH: dirty-pool/metadata
+      OPS_MAN_USER: {{"{{scs-ops-manager-user}}"}}
+      OPS_MAN_PASSWORD: {{"{{scs-ops-manager-password}}"}}
+      MAKE_TARGET: run-remove
+   
+  on_success:
+    do:
+    - put: clean-pool-no-tile-{{index . "pcfVersion"}}
+      params:
+        add: dirty-pool-no-tile-{{index . "pcfVersion"}}
+    - put: dirty-pool-no-tile-{{index . "pcfVersion"}}
+      params:
+        remove: dirty-pool-no-tile-{{index . "pcfVersion"}}
+
+  on_failure:
+    aggregate:
+    - do:
+      - put: broken-pool-no-tile-{{index . "pcfVersion"}}
+        params:
+          add: dirty-pool-no-tile-{{index . "pcfVersion"}}
+      - put: dirty-pool-no-tile-{{index . "pcfVersion"}}
+        params:
+          remove: dirty-pool-no-tile-{{index . "pcfVersion"}}
+    - *slack-failure-notification
