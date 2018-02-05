@@ -55,15 +55,18 @@ func main() {
 	pipelineTemplate := template.New(pipelineTemplateName).Funcs(template.FuncMap{"indent": indent})
 
 
-	flattenedData := make(map[string]map[string]string)
+	flattenedData := make(map[string]map[string]interface{})
 	for _, block := range dataSchema.Blocks  {
 		blockTemplateData, err := ioutil.ReadFile(filepath.Join(*templatesDirectoryPath, block.Template))
 		check(err)
-		blockVars := make(map[string]string)
+		blockVars := make(map[string]interface{})
 		template.Must(pipelineTemplate.New(block.Name).Parse(string(blockTemplateData)))
 		for _, subBlock := range block.SubBlocks  {
 			template.Must(pipelineTemplate.New(subBlock.Name).ParseFiles(filepath.Join(*templatesDirectoryPath, subBlock.Template)))
-			addAllEntries(subBlock.Vars, blockVars)
+			subBlockVars := make(map[string]interface{})
+			addAllEntries(block.Vars, subBlockVars)
+			addAllEntries(subBlock.Vars, subBlockVars)
+			blockVars[subBlock.Name] = subBlockVars
 		}
 		addAllEntries(block.Vars, blockVars)
 		flattenedData[block.Name] = blockVars
@@ -74,7 +77,7 @@ func main() {
 
 }
 
-func addAllEntries(sourceMap map[string]string, destMap map[string]string) {
+func addAllEntries(sourceMap map[string]string, destMap map[string]interface{}) {
 	for key, value := range sourceMap {
 		destMap[key] = value
 	}

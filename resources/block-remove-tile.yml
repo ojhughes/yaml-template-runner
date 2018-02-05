@@ -3,4 +3,4 @@
   max_in_flight: 6
   on_success:
     {{- "\n" -}}
-    {{ template "moveToLaundromat" . }}
+    {{ template "moveToLaundromat" .moveToLaundromat }}
