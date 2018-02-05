@@ -7,11 +7,22 @@ import (
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
 
+	"fmt"
+
+	"strings"
 )
+
+type SubBlock struct {
+	Name string `yaml:"name"`
+	Template string `yaml:"template"`
+	Vars map[string]string `yaml:"vars,omitempty"`
+}
 
 type Block struct {
 	Name string `yaml:"name"`
 	Vars map[string]string `yaml:"vars,omitempty"`
+	SubBlocks []SubBlock `yaml:"subBlocks,omitempty"`
+
 }
 
 type TemplateDataSchema struct {
@@ -34,17 +45,33 @@ func main() {
 	pipelineTemplateData, err := ioutil.ReadFile("resources/template-pipeline-laundromat.yml")
 	check(err)
 
-	pipelineTemplate := template.New(pipelineTemplateName)
+	pipelineTemplate := template.New(pipelineTemplateName).Funcs(template.FuncMap{"indent": func(spaces int, v string) string {
+		pad := strings.Repeat(" ", spaces)
+		return pad + strings.Replace(v, "\n", "\n"+pad, -1)
+	}})
+
 	flattenedData := make(map[string]map[string]string)
 	for _, block := range dataSchema.Blocks  {
+		blockVars := make(map[string]string)
 		template.Must(pipelineTemplate.New(block.Name).Parse( string(blockTemplateData)))
-		flattenedData[block.Name] = block.Vars
+		for _, subBlock := range block.SubBlocks  {
+			template.Must(pipelineTemplate.New(subBlock.Name).ParseFiles("resources/" + subBlock.Template))
+			addAllEntries(subBlock.Vars, blockVars)
+		}
+		addAllEntries(block.Vars, blockVars)
+		flattenedData[block.Name] = blockVars
 	}
-
+	fmt.Print(pipelineTemplate.DefinedTemplates())
 	template.Must(pipelineTemplate.New(pipelineTemplateName).Parse(string(pipelineTemplateData)))
 	err = pipelineTemplate.ExecuteTemplate(os.Stdout, "pipelineTemplate", flattenedData)
 	check(err)
 
+}
+
+func addAllEntries(sourceMap map[string]string, destMap map[string]string) {
+	for key, value := range sourceMap {
+		destMap[key] = value
+	}
 }
 
 func check(err error) {

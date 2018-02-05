@@ -1,0 +1,11 @@
+{{- define "moveToLaundromat" }}
+{{- $pool := index . "pool" -}}
+{{- $pcfVersion := index . "pcfVersion" -}}
+{{- "" | indent 2 -}}- do:
+    - put: {{$pool}}-{{$pcfVersion}}
+      params:
+        add: {{$pool}}-{{$pcfVersion}}
+    - put: {{$pool}}-{{$pcfVersion}}
+      params:
+        remove: {{$pool}}-{{$pcfVersion}}
+{{end -}}

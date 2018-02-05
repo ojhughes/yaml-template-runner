@@ -1,2 +1,6 @@
-- name: remove-tile-{{index . "pcfVersion"}}
+{{- $pcfVersion := index . "pcfVersion" -}}
+- name: remove-tile-{{$pcfVersion}}
   max_in_flight: 6
+  on_success:
+    {{- "\n" -}}
+    {{ template "moveToLaundromat" . }}

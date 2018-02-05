@@ -1,8 +1,20 @@
 blocks:
-  - name: removeTile1_12
+- name: removeTile112
+  template: block-remove-tile.yml
+  vars:
+    pcfVersion: 1-12
+  subBlocks:
+  - name: moveToLaundromat
+    template: block-move-to-laundromat.yml
     vars:
-      pcfVersion: 1-12
+      pool: dirty-pool-no-tile
 
-  - name: removeTile2_0
+- name: removeTile20
+  template: block-remove-tile.yml
+  vars:
+    pcfVersion: 2-0
+  subBlocks:
+  - name: moveToLaundromat
+    template: block-move-to-laundromat.yml
     vars:
-      pcfVersion: 2-0
+      pool: dirty-pool-no-tile

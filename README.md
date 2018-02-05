@@ -6,11 +6,11 @@ A data YAML file that describes the variables that partial YAML blocks with use 
 
 ```
 blocks:
-  - name: removeTile1_12
+  - name: removeTile112
     vars:
       pcfVersion: 1-12
 
-  - name: removeTile2_0
+  - name: removeTile20
     vars:
       pcfVersion: 2-0
 ```
@@ -26,8 +26,8 @@ And finally the layout file which wires up the blocks with the data, eg;
 ```
 {{define "pipelineTemplate"}}
 jobs:
-{{template "removeTile1_12" .removeTile1_12}}
-{{template "removeTile2_0" .removeTile2_0}}
+{{template "removeTile112" .removeTile112}}
+{{template "removeTile20" .removeTile20}}
 {{end}}
 ```
 
