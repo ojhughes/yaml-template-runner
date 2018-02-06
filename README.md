@@ -4,7 +4,7 @@ This project is a simple wrapper of the Go template engine so all the features
 in the documentation should work: [https://golang.org/pkg/text/template/]() 
 
 ## Usage
-Checkout into GOPATH/src
+Checkout into $GOPATH/src
 * `go install`
 * `$GOPATH/bin/template-runner -d data-vars.yml -t template-layout.yml -r resources` 
 * or `go run template-runner.go` -d "" -r "" -t ""
@@ -39,6 +39,7 @@ To reference variables in a `block` template:
 {{- $myVar := index . "myvar" -}}
 Hello, this is the value of {{$myVar}}
 ```
+### SubBlock definition
 
 A SubBlock points to a `template` file that will be injected into a `block` (in exactly the same way as a block is injected into a layout template)
 The parameters for defining a SubBlock are the same for a `block`:
@@ -50,6 +51,7 @@ vars: *A map of vars to be passed to the injected template*
     myVar: foo
     otherVar: bar
 ```
+### Layout file definition
 
 And finally the layout file which wires up the blocks with the data, eg;
 
@@ -88,4 +90,9 @@ jobs:
         remove: dirty-pool-no-tile-2-0
 ```
 
-The next feature to implement would be the ability to define nested blocks
+### Issues
+YAML indentation is sometimes not correct. Ensure that whitespace is removed by using hyphens
+ before / after template markers eg. `{{-` and `-}}`.
+ 
+Indentation can be forced if needed using `{{- "" | indent 2 -}}` before the text that needs indenting.
+Maybe this could be fixed by parsing the template as YAML..
